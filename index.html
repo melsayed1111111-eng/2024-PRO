@@ -6,11 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>لعبة 2048 - النسخة الاحترافية</title>
 
-    <!-- 1. استدعاء مكتبات Firebase الضرورية (النسخة المتوافقة مع الويب المباشر) -->
+    <!-- مكتبات Firebase -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-analytics-compat.js"></script>
-    <!-- يمكنك إضافة مكتبة Database إذا كنت ستستخدم قاعدة البيانات -->
-    <!-- <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script> -->
 
     <!-- الخطوط -->
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
@@ -39,6 +37,8 @@
             align-items: center;
             min-height: 100vh;
             user-select: none;
+            overscroll-behavior: none;
+            /* منع السحب الزائد في الموبايل */
         }
         
         .header-container {
@@ -147,6 +147,7 @@
             grid-template-rows: repeat(4, 1fr);
             gap: 10px;
             touch-action: none;
+            /* مهم جداً للمس */
         }
         
         .grid-cell {
@@ -327,7 +328,6 @@
 
 <body>
 
-    <!-- الهيدر -->
     <div class="header-container">
         <h1 class="title">2048</h1>
         <div class="scores-container">
@@ -342,14 +342,12 @@
         </div>
     </div>
 
-    <!-- أزرار التحكم -->
     <div class="controls-bar">
         <button class="btn btn-store" onclick="openStore()">🛒 المتجر</button>
         <button class="btn btn-undo" onclick="undoMove()">↩️ تراجع <span class="undo-count" id="undo-display">3</span></button>
         <button class="btn btn-new" onclick="startNewGame()">لعبة جديدة</button>
     </div>
 
-    <!-- شبكة اللعب -->
     <div class="game-container" id="game-board">
         <div class="grid-cell"></div>
         <div class="grid-cell"></div>
@@ -369,13 +367,11 @@
         <div class="grid-cell"></div>
     </div>
 
-    <!-- الإعلانات -->
     <div class="ad-container" id="ad-slot-1">
         <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6359877001554870" crossorigin="anonymous"></script>
         <span>مساحة إعلانية (Google Ads)</span>
     </div>
 
-    <!-- نافذة المتجر -->
     <div class="modal-overlay" id="store-modal">
         <div class="modal-content">
             <h2 class="modal-title">💎 متجر اللعبة</h2>
@@ -397,40 +393,9 @@
     </div>
 
     <script>
-        /* 
-                                   ===========================================================
-                                   1. إعدادات Firebase (تم التفعيل)
-                                   ===========================================================
-                                   يا هندسة، امسح البيانات المكتوبة حالياً وضع بياناتك بدلاً منها
-                                */
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyA03XF-ijDTp1C3jOcmo2ajZL4RvUlcZd0",
-            authDomain: "gams-dca3f.firebaseapp.com",
-            databaseURL: "https://gams-dca3f-default-rtdb.firebaseio.com",
-            projectId: "gams-dca3f",
-            storageBucket: "gams-dca3f.firebasestorage.app",
-            messagingSenderId: "805484875796",
-            appId: "1:805484875796:web:3f5390ad337f7f9c575701",
-            measurementId: "G-R03SS18JVS"
-        };
-
-        // تهيئة الفير باس (لن يحدث خطأ الآن لأننا استدعينا المكتبة في الأعلى)
-        try {
-            firebase.initializeApp(firebaseConfig);
-            console.log("تم الاتصال بـ Firebase بنجاح!");
-            // يمكنك هنا تفعيل التحليلات إذا أردت
-            // firebase.analytics(); 
-        } catch (error) {
-            console.error("حدث خطأ في اتصال Firebase (تأكد من البيانات):", error);
-        }
-
-
-        /* 
-           ===========================================================
-           2. محرك اللعبة (Logic)
-           ===========================================================
-        */
+        // =========================================================
+        // 1. محرك اللعبة (تم نقله للأعلى ليعمل فوراً)
+        // =========================================================
 
         const boardSize = 4;
         let board = [];
@@ -444,6 +409,7 @@
         const bestScoreElement = document.getElementById('best-score');
         const undoDisplay = document.getElementById('undo-display');
 
+        // تهيئة أولية
         bestScoreElement.innerText = bestScore;
 
         function startNewGame() {
@@ -455,6 +421,7 @@
             addRandomTile();
             addRandomTile();
             updateBoard();
+            undoDisplay.innerText = undoLimit;
         }
 
         function clearTiles() {
@@ -511,9 +478,12 @@
         }
 
         function move(direction) {
-            saveState();
             let hasMoved = false;
             let oldBoard = [...board];
+
+            // حفظ الحالة للتراجع قبل التغيير
+            let tempScore = score;
+
             if (direction === 'left' || direction === 'right') {
                 for (let i = 0; i < boardSize; i++) {
                     let row = [];
@@ -529,7 +499,10 @@
                     for (let i = 0; i < boardSize; i++) board[i * 4 + j] = newCol[i];
                 }
             }
+
             if (JSON.stringify(oldBoard) !== JSON.stringify(board)) {
+                // تم التحرك بنجاح
+                saveState(oldBoard, tempScore); // حفظ الحالة القديمة
                 addRandomTile();
                 scoreElement.innerText = score;
                 if (score > bestScore) {
@@ -541,7 +514,9 @@
             }
         }
 
-        // أزرار الكيبورد
+        // --- مستمعات الأحداث (Event Listeners) ---
+
+        // لوحة المفاتيح
         document.addEventListener('keydown', (e) => {
             if (e.key === 'ArrowRight') move('right');
             if (e.key === 'ArrowLeft') move('left');
@@ -549,9 +524,10 @@
             if (e.key === 'ArrowDown') move('down');
         });
 
-        // دعم اللمس
+        // اللمس (للموبايل)
         let touchStartX = 0;
         let touchStartY = 0;
+
         boardElement.addEventListener('touchstart', (e) => {
             touchStartX = e.changedTouches[0].screenX;
             touchStartY = e.changedTouches[0].screenY;
@@ -565,21 +541,27 @@
             let touchEndY = e.changedTouches[0].screenY;
             let dx = touchEndX - touchStartX;
             let dy = touchEndY - touchStartY;
+
             if (Math.abs(dx) > Math.abs(dy)) {
-                if (dx > 0) move('right');
-                else move('left');
+                if (Math.abs(dx) > 10) { // حساسية اللمس
+                    if (dx > 0) move('right');
+                    else move('left');
+                }
             } else {
-                if (dy > 0) move('down');
-                else move('up');
+                if (Math.abs(dy) > 10) {
+                    if (dy > 0) move('down');
+                    else move('up');
+                }
             }
         }, {
             passive: false
         });
 
-        function saveState() {
+        // الوظائف الإضافية
+        function saveState(oldBoard, oldScore) {
             previousState = {
-                board: [...board],
-                score: score
+                board: [...oldBoard],
+                score: oldScore
             };
         }
 
@@ -610,7 +592,7 @@
         }
 
         function simulatePurchase(itemId) {
-            alert("جارِ الاتصال ببوابة الدفع... (هذا مجرد محاكاة)");
+            alert("جارِ الاتصال ببوابة الدفع...");
             setTimeout(() => {
                 alert("تم الشراء بنجاح!");
                 if (itemId === 'undo_pack') {
@@ -618,12 +600,42 @@
                     undoDisplay.innerText = undoLimit;
                 }
                 closeStore();
-            }, 1000);
+            }, 500);
         }
 
-        // تشغيل اللعبة
+        // تشغيل اللعبة فوراً
         startNewGame();
         window.addEventListener('resize', updateBoard);
+
+
+        // =========================================================
+        // 2. إعدادات Firebase (في الأسفل ومعزولة)
+        // =========================================================
+
+        const firebaseConfig = {
+            // استبدل هذه القيم ببياناتك الحقيقية من كونسول فيرباس
+            apiKey: "AIzaSyA03XF-ijDTp1C3jOcmo2ajZL4RvUlcZd0",
+            authDomain: "gams-dca3f.firebaseapp.com",
+            databaseURL: "https://gams-dca3f-default-rtdb.firebaseio.com",
+            projectId: "gams-dca3f",
+            storageBucket: "gams-dca3f.firebasestorage.app",
+            messagingSenderId: "805484875796",
+            appId: "1:805484875796:web:3f5390ad337f7f9c575701",
+            measurementId: "G-R03SS18JVS"
+        };
+
+        // محاولة الاتصال بالفيرباس بشكل آمن
+        try {
+            if (typeof firebase !== 'undefined') {
+                firebase.initializeApp(firebaseConfig);
+                console.log("تم تهيئة Firebase");
+            } else {
+                console.log("مكتبة Firebase لم يتم تحميلها (تأكد من الاتصال بالإنترنت)");
+            }
+        } catch (error) {
+            // هذا هو الجزء المهم: إذا حدث خطأ في البيانات، لن تتوقف اللعبة
+            console.warn("تنبيه: لم يتم الاتصال بـ Firebase لأن البيانات غير صحيحة، لكن اللعبة ستعمل.");
+        }
     </script>
 </body>
 
