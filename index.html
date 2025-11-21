@@ -6,11 +6,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>لعبة 2048 - النسخة الاحترافية</title>
 
+    <!-- 1. استدعاء مكتبات Firebase الضرورية (النسخة المتوافقة مع الويب المباشر) -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-analytics-compat.js"></script>
+    <!-- يمكنك إضافة مكتبة Database إذا كنت ستستخدم قاعدة البيانات -->
+    <!-- <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script> -->
+
     <!-- الخطوط -->
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
 
     <style>
-        /* --- CSS Variables --- */
+        /* --- التنسيقات (CSS) --- */
         
          :root {
             --bg-color: #faf8ef;
@@ -33,9 +39,7 @@
             align-items: center;
             min-height: 100vh;
             user-select: none;
-            /* منع تحديد النص أثناء اللعب */
         }
-        /* --- الهيدر والنقاط --- */
         
         .header-container {
             display: flex;
@@ -77,7 +81,6 @@
             font-size: 20px;
             font-weight: bold;
         }
-        /* --- شريط التحكم (المتجر والتراجع) --- */
         
         .controls-bar {
             display: flex;
@@ -108,7 +111,6 @@
         .btn-new {
             background-color: var(--primary-btn);
         }
-        /* زر التراجع - العنصر القابل للبيع */
         
         .btn-undo {
             background-color: var(--undo-btn);
@@ -130,12 +132,10 @@
         .btn-store {
             background-color: var(--store-btn);
         }
-        /* --- شبكة اللعب --- */
         
         .game-container {
             position: relative;
             width: 90vw;
-            /* موبايل */
             height: 90vw;
             max-width: 500px;
             max-height: 500px;
@@ -147,7 +147,6 @@
             grid-template-rows: repeat(4, 1fr);
             gap: 10px;
             touch-action: none;
-            /* لتحسين اللمس */
         }
         
         .grid-cell {
@@ -156,7 +155,6 @@
             width: 100%;
             height: 100%;
         }
-        /* البلاطات المتحركة */
         
         .tile {
             position: absolute;
@@ -167,8 +165,19 @@
             border-radius: 5px;
             transition: all 0.15s ease-in-out;
             z-index: 10;
+            animation: appear 0.2s ease-in-out;
         }
-        /* ألوان الأرقام - تصميم احترافي */
+        
+        @keyframes appear {
+            0% {
+                opacity: 0;
+                transform: scale(0);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
         
         .tile-2 {
             background: #eee4da;
@@ -238,7 +247,6 @@
             font-size: 20px;
             box-shadow: 0 0 30px 10px rgba(243, 215, 116, 0.5);
         }
-        /* --- مساحة الإعلانات --- */
         
         .ad-container {
             width: 90%;
@@ -254,7 +262,6 @@
             font-size: 12px;
             border: 1px dashed #bbb;
         }
-        /* --- نوافذ المتجر (Modals) --- */
         
         .modal-overlay {
             position: fixed;
@@ -335,24 +342,15 @@
         </div>
     </div>
 
-    <!-- أزرار التحكم والربح -->
+    <!-- أزرار التحكم -->
     <div class="controls-bar">
-        <button class="btn btn-store" onclick="openStore()">
-            🛒 المتجر
-        </button>
-
-        <button class="btn btn-undo" onclick="undoMove()">
-            ↩️ تراجع <span class="undo-count" id="undo-display">3</span>
-        </button>
-
-        <button class="btn btn-new" onclick="startNewGame()">
-            لعبة جديدة
-        </button>
+        <button class="btn btn-store" onclick="openStore()">🛒 المتجر</button>
+        <button class="btn btn-undo" onclick="undoMove()">↩️ تراجع <span class="undo-count" id="undo-display">3</span></button>
+        <button class="btn btn-new" onclick="startNewGame()">لعبة جديدة</button>
     </div>
 
-    <!-- منطقة اللعب -->
+    <!-- شبكة اللعب -->
     <div class="game-container" id="game-board">
-        <!-- الخلايا الثابتة (Background Grid) -->
         <div class="grid-cell"></div>
         <div class="grid-cell"></div>
         <div class="grid-cell"></div>
@@ -369,80 +367,77 @@
         <div class="grid-cell"></div>
         <div class="grid-cell"></div>
         <div class="grid-cell"></div>
-
-        <!-- البلاطات ستضاف هنا بالجافاسكريبت -->
     </div>
 
-    <!-- مساحة إعلانية (AdSense) -->
+    <!-- الإعلانات -->
     <div class="ad-container" id="ad-slot-1">
-        <!-- هنا تضع كود إعلانات جوجل أدسنس -->
         <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6359877001554870" crossorigin="anonymous"></script>
-        <!-- <ins class="adsbygoogle" ...></ins> -->
         <span>مساحة إعلانية (Google Ads)</span>
     </div>
 
-    <!-- نافذة المتجر (Monetization Modal) -->
+    <!-- نافذة المتجر -->
     <div class="modal-overlay" id="store-modal">
         <div class="modal-content">
             <h2 class="modal-title">💎 متجر اللعبة</h2>
             <p>قم بترقية تجربتك وادعم المطور</p>
-
             <div class="store-item" onclick="simulatePurchase('undo_pack')">
-                <div>
-                    <strong>50 تراجع إضافي</strong><br>
-                    <small>صحح أخطاءك واستمر!</small>
-                </div>
+                <div><strong>50 تراجع إضافي</strong><br><small>صحح أخطاءك واستمر!</small></div>
                 <span class="price-tag">1.99$</span>
             </div>
-
             <div class="store-item" onclick="simulatePurchase('no_ads')">
-                <div>
-                    <strong>إزالة الإعلانات</strong><br>
-                    <small>اشتراك شهري</small>
-                </div>
+                <div><strong>إزالة الإعلانات</strong><br><small>اشتراك شهري</small></div>
                 <span class="price-tag">0.99$/شهر</span>
             </div>
-
             <div class="store-item" onclick="simulatePurchase('theme_pack')">
-                <div>
-                    <strong>ألوان ثيمات جديدة</strong><br>
-                    <small>غير شكل اللعبة بالكامل</small>
-                </div>
+                <div><strong>ألوان ثيمات جديدة</strong><br><small>غير شكل اللعبة</small></div>
                 <span class="price-tag">2.99$</span>
             </div>
-
             <button class="btn close-modal" onclick="closeStore()">إغلاق</button>
         </div>
     </div>
 
     <script>
         /* 
-                                                                                         ========================================
-                                                                              1. Firebase Configuration (Setup)
-                                                                          ========================================
-                                            عليك الذهاب إلى https://console.firebase.google.com
-                                                  وإنشاء مشروع جديد ونسخ الكود الخاص بك هنا
-                                                                                                                                                                            */
-        const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_PROJECT.firebaseapp.com",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_PROJECT.appspot.com",
-            messagingSenderId: "SENDER_ID",
-            appId: "APP_ID"
-        };
-        firebase.initializeApp(firebaseConfig);
+                                   ===========================================================
+                                   1. إعدادات Firebase (تم التفعيل)
+                                   ===========================================================
+                                   يا هندسة، امسح البيانات المكتوبة حالياً وضع بياناتك بدلاً منها
+                                */
 
-        /* ========================================
-           2. Game Logic Engine
-           ======================================== */
+        const firebaseConfig = {
+            apiKey: "AIzaSyA03XF-ijDTp1C3jOcmo2ajZL4RvUlcZd0",
+            authDomain: "gams-dca3f.firebaseapp.com",
+            databaseURL: "https://gams-dca3f-default-rtdb.firebaseio.com",
+            projectId: "gams-dca3f",
+            storageBucket: "gams-dca3f.firebasestorage.app",
+            messagingSenderId: "805484875796",
+            appId: "1:805484875796:web:3f5390ad337f7f9c575701",
+            measurementId: "G-R03SS18JVS"
+        };
+
+        // تهيئة الفير باس (لن يحدث خطأ الآن لأننا استدعينا المكتبة في الأعلى)
+        try {
+            firebase.initializeApp(firebaseConfig);
+            console.log("تم الاتصال بـ Firebase بنجاح!");
+            // يمكنك هنا تفعيل التحليلات إذا أردت
+            // firebase.analytics(); 
+        } catch (error) {
+            console.error("حدث خطأ في اتصال Firebase (تأكد من البيانات):", error);
+        }
+
+
+        /* 
+           ===========================================================
+           2. محرك اللعبة (Logic)
+           ===========================================================
+        */
 
         const boardSize = 4;
         let board = [];
         let score = 0;
         let bestScore = localStorage.getItem('2048-best') || 0;
-        let undoLimit = 3; // عدد مرات التراجع المجانية
-        let previousState = null; // لتخزين الحالة السابقة للتراجع
+        let undoLimit = 3;
+        let previousState = null;
 
         const boardElement = document.getElementById('game-board');
         const scoreElement = document.getElementById('score');
@@ -455,7 +450,7 @@
             board = Array(boardSize * boardSize).fill(0);
             score = 0;
             scoreElement.innerText = 0;
-            previousState = null; // تصفير التراجع عند بدء لعبة جديدة
+            previousState = null;
             clearTiles();
             addRandomTile();
             addRandomTile();
@@ -472,76 +467,70 @@
             board.forEach((val, index) => {
                 if (val === 0) emptyCells.push(index);
             });
-
             if (emptyCells.length > 0) {
                 let randIndex = emptyCells[Math.floor(Math.random() * emptyCells.length)];
                 board[randIndex] = Math.random() > 0.9 ? 4 : 2;
-                // Animation logic handled in updateBoard
             }
         }
 
         function updateBoard() {
             clearTiles();
             const width = boardElement.clientWidth / 4;
-
             board.forEach((val, index) => {
                 if (val > 0) {
                     let tile = document.createElement('div');
                     tile.classList.add('tile', `tile-${val > 2048 ? 2048 : val}`);
                     tile.innerText = val;
-
                     let row = Math.floor(index / 4);
                     let col = index % 4;
-
-                    // حساب الموقع
                     tile.style.width = (width - 20) + 'px';
                     tile.style.height = (width - 20) + 'px';
-                    tile.style.top = (row * width + 5) + 'px'; // +5 padding adjustment
-                    tile.style.left = (col * width + 5) + 'px'; // +5 padding adjustment
-
+                    tile.style.top = (row * width + 5) + 'px';
+                    tile.style.left = (col * width + 5) + 'px';
                     boardElement.appendChild(tile);
                 }
             });
         }
 
-        // --- منطق الحركة (Movement Logic) ---
-        function move(direction) {
-            // حفظ الحالة قبل الحركة للتراجع
-            saveState();
-
-            let hasMoved = false;
-            let newBoard = [...board];
-            let addScore = 0;
-
-            // خوارزمية الحركة والدمج (مبسطة)
-            // (هنا يتم كتابة منطق الدمج للصفوف والأعمدة بناء على الاتجاه)
-            // ... لتوفير المساحة سأضع المنطق الأساسي للحركة:
-
-            /* 
-               ملاحظة: كتابة خوارزمية 2048 كاملة هنا ستكون طويلة جداً
-               لذلك سأضع محاكاة للحركة لغرض العرض، 
-               ولكن في النسخة النهائية يجب وضع دالة الدمج الكاملة.
-            */
-
-            // هذه دالة مبسطة جداً للمحاكاة فقط (تحتاج لاستبدالها بخوارزمية المصفوفات الكاملة)
-            // ولكن سأجعلها تعمل بشكل حقيقي قدر الإمكان
-
-            // مثال للتحرك لليمين:
-            if (direction === 'right' || direction === 'left' || direction === 'up' || direction === 'down') {
-                // هنا يفترض أن يكون كود معالجة المصفوفة الحقيقي
-                // سأقوم بعمل حركة عشوائية كمثال ليعمل الكود وتظهر الأرقام
-
-                // *تنبيه*: هذا الجزء يحتاج لمكتبة 2048 logic كاملة ليكون دقيقاً 100%
-                // سأقوم بمحاكاة أن "شيئاً ما تحرك" لإظهار البلاطات
-                let empties = board.filter(x => x === 0).length;
-                if (empties > 0) {
-                    addRandomTile(); // محاكاة ظهور رقم جديد
-                    hasMoved = true;
+        function slide(row) {
+            let arr = row.filter(val => val);
+            let missing = boardSize - arr.length;
+            let zeros = Array(missing).fill(0);
+            arr = arr.concat(zeros);
+            for (let i = 0; i < boardSize - 1; i++) {
+                if (arr[i] !== 0 && arr[i] === arr[i + 1]) {
+                    arr[i] *= 2;
+                    score += arr[i];
+                    arr[i + 1] = 0;
                 }
             }
+            arr = arr.filter(val => val);
+            missing = boardSize - arr.length;
+            zeros = Array(missing).fill(0);
+            return arr.concat(zeros);
+        }
 
-            if (hasMoved) {
-                score += addScore;
+        function move(direction) {
+            saveState();
+            let hasMoved = false;
+            let oldBoard = [...board];
+            if (direction === 'left' || direction === 'right') {
+                for (let i = 0; i < boardSize; i++) {
+                    let row = [];
+                    for (let j = 0; j < boardSize; j++) row.push(board[i * 4 + j]);
+                    let newRow = (direction === 'right') ? slide(row.reverse()).reverse() : slide(row);
+                    for (let j = 0; j < boardSize; j++) board[i * 4 + j] = newRow[j];
+                }
+            } else if (direction === 'up' || direction === 'down') {
+                for (let j = 0; j < boardSize; j++) {
+                    let col = [];
+                    for (let i = 0; i < boardSize; i++) col.push(board[i * 4 + j]);
+                    let newCol = (direction === 'down') ? slide(col.reverse()).reverse() : slide(col);
+                    for (let i = 0; i < boardSize; i++) board[i * 4 + j] = newCol[i];
+                }
+            }
+            if (JSON.stringify(oldBoard) !== JSON.stringify(board)) {
+                addRandomTile();
                 scoreElement.innerText = score;
                 if (score > bestScore) {
                     bestScore = score;
@@ -549,11 +538,10 @@
                     bestScoreElement.innerText = bestScore;
                 }
                 updateBoard();
-                checkGameOver();
             }
         }
 
-        // --- التحكم (Keyboard & Swipe) ---
+        // أزرار الكيبورد
         document.addEventListener('keydown', (e) => {
             if (e.key === 'ArrowRight') move('right');
             if (e.key === 'ArrowLeft') move('left');
@@ -561,10 +549,9 @@
             if (e.key === 'ArrowDown') move('down');
         });
 
-        // دعم اللمس (Touch Swipe)
+        // دعم اللمس
         let touchStartX = 0;
         let touchStartY = 0;
-
         boardElement.addEventListener('touchstart', (e) => {
             touchStartX = e.changedTouches[0].screenX;
             touchStartY = e.changedTouches[0].screenY;
@@ -573,13 +560,11 @@
         });
 
         boardElement.addEventListener('touchend', (e) => {
-            e.preventDefault(); // منع سكرول الصفحة
+            e.preventDefault();
             let touchEndX = e.changedTouches[0].screenX;
             let touchEndY = e.changedTouches[0].screenY;
-
             let dx = touchEndX - touchStartX;
             let dy = touchEndY - touchStartY;
-
             if (Math.abs(dx) > Math.abs(dy)) {
                 if (dx > 0) move('right');
                 else move('left');
@@ -590,11 +575,6 @@
         }, {
             passive: false
         });
-
-
-        /* ========================================
-           3. Monetization Functions (Store & Undo)
-           ======================================== */
 
         function saveState() {
             previousState = {
@@ -610,15 +590,13 @@
                     score = previousState.score;
                     scoreElement.innerText = score;
                     updateBoard();
-                    previousState = null; // لا يمكن التراجع مرتين متتاليتين
-
+                    previousState = null;
                     undoLimit--;
                     undoDisplay.innerText = undoLimit;
                 } else {
-                    alert("لا يوجد حركة للتراجع عنها!");
+                    alert("لا يوجد حركة سابقة!");
                 }
             } else {
-                // إذا انتهى الرصيد، افتح المتجر
                 openStore();
             }
         }
@@ -631,32 +609,20 @@
             document.getElementById('store-modal').style.display = 'none';
         }
 
-        // محاكاة عملية الشراء
         function simulatePurchase(itemId) {
-            // هنا ستربط مع Stripe أو Google Pay لاحقاً
             alert("جارِ الاتصال ببوابة الدفع... (هذا مجرد محاكاة)");
-
-            if (itemId === 'undo_pack') {
-                setTimeout(() => {
-                    alert("تم الشراء بنجاح! +50 تراجع");
+            setTimeout(() => {
+                alert("تم الشراء بنجاح!");
+                if (itemId === 'undo_pack') {
                     undoLimit += 50;
                     undoDisplay.innerText = undoLimit;
-                    closeStore();
-                }, 1000);
-            }
+                }
+                closeStore();
+            }, 1000);
         }
 
-        function checkGameOver() {
-            if (!board.includes(0)) {
-                // تحقق بسيط، يجب التحقق من إمكانية الدمج أيضاً
-                // alert("Game Over!");
-            }
-        }
-
-        // بدء اللعبة
+        // تشغيل اللعبة
         startNewGame();
-
-        // إعادة ضبط حجم البلاطات عند تغيير حجم الشاشة
         window.addEventListener('resize', updateBoard);
     </script>
 </body>
