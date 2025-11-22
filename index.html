@@ -4,7 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>لعبة 2048 - النسخة الاحترافية</title>
+    <meta name="description" content="العب 2048 أونلاين. لعبة الألغاز الرقمية الأشهر لتنشيط العقل. تعلم استراتيجيات الفوز وحقق أعلى نتيجة.">
+    <title>لعبة 2048 - النسخة الاحترافية | العب أونلاين</title>
 
     <!-- مكتبات Firebase -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -38,7 +39,6 @@
             min-height: 100vh;
             user-select: none;
             overscroll-behavior: none;
-            /* منع السحب الزائد في الموبايل */
         }
         
         .header-container {
@@ -108,37 +108,24 @@
             transform: scale(0.95);
         }
         
-        .btn-new {
-            background-color: var(--primary-btn);
-        }
-        
-        .btn-undo {
-            background-color: var(--undo-btn);
-            position: relative;
-        }
+        .btn-new { background-color: var(--primary-btn); }
+        .btn-undo { background-color: var(--undo-btn); position: relative; }
         
         .undo-count {
             background: white;
             color: var(--undo-btn);
             border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            width: 20px; height: 20px;
+            display: flex; justify-content: center; align-items: center;
             font-size: 12px;
         }
         
-        .btn-store {
-            background-color: var(--store-btn);
-        }
+        .btn-store { background-color: var(--store-btn); }
         
         .game-container {
             position: relative;
-            width: 90vw;
-            height: 90vw;
-            max-width: 500px;
-            max-height: 500px;
+            width: 90vw; height: 90vw;
+            max-width: 500px; max-height: 500px;
             background: var(--grid-bg);
             border-radius: 10px;
             padding: 10px;
@@ -147,182 +134,120 @@
             grid-template-rows: repeat(4, 1fr);
             gap: 10px;
             touch-action: none;
-            /* مهم جداً للمس */
         }
         
         .grid-cell {
             background: var(--cell-bg);
             border-radius: 5px;
-            width: 100%;
-            height: 100%;
+            width: 100%; height: 100%;
         }
         
         .tile {
             position: absolute;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-weight: bold;
-            border-radius: 5px;
+            display: flex; justify-content: center; align-items: center;
+            font-weight: bold; border-radius: 5px;
             transition: all 0.15s ease-in-out;
             z-index: 10;
             animation: appear 0.2s ease-in-out;
         }
         
         @keyframes appear {
-            0% {
-                opacity: 0;
-                transform: scale(0);
-            }
-            100% {
-                opacity: 1;
-                transform: scale(1);
-            }
+            0% { opacity: 0; transform: scale(0); }
+            100% { opacity: 1; transform: scale(1); }
         }
         
-        .tile-2 {
-            background: #eee4da;
-            color: #776e65;
-            font-size: 45px;
-        }
+        /* ألوان المربعات */
+        .tile-2 { background: #eee4da; color: #776e65; font-size: 45px; }
+        .tile-4 { background: #ede0c8; color: #776e65; font-size: 45px; }
+        .tile-8 { background: #f2b179; color: #f9f6f2; font-size: 40px; }
+        .tile-16 { background: #f59563; color: #f9f6f2; font-size: 35px; }
+        .tile-32 { background: #f67c5f; color: #f9f6f2; font-size: 35px; }
+        .tile-64 { background: #f65e3b; color: #f9f6f2; font-size: 30px; }
+        .tile-128 { background: #edcf72; color: #f9f6f2; font-size: 25px; box-shadow: 0 0 30px 10px rgba(243, 215, 116, 0.3); }
+        .tile-256 { background: #edcc61; color: #f9f6f2; font-size: 25px; box-shadow: 0 0 30px 10px rgba(243, 215, 116, 0.4); }
+        .tile-512 { background: #edc850; color: #f9f6f2; font-size: 25px; }
+        .tile-1024 { background: #edc53f; color: #f9f6f2; font-size: 20px; }
+        .tile-2048 { background: #edc22e; color: #f9f6f2; font-size: 20px; box-shadow: 0 0 30px 10px rgba(243, 215, 116, 0.5); }
         
-        .tile-4 {
-            background: #ede0c8;
-            color: #776e65;
-            font-size: 45px;
-        }
-        
-        .tile-8 {
-            background: #f2b179;
-            color: #f9f6f2;
-            font-size: 40px;
-        }
-        
-        .tile-16 {
-            background: #f59563;
-            color: #f9f6f2;
-            font-size: 35px;
-        }
-        
-        .tile-32 {
-            background: #f67c5f;
-            color: #f9f6f2;
-            font-size: 35px;
-        }
-        
-        .tile-64 {
-            background: #f65e3b;
-            color: #f9f6f2;
-            font-size: 30px;
-        }
-        
-        .tile-128 {
-            background: #edcf72;
-            color: #f9f6f2;
-            font-size: 25px;
-            box-shadow: 0 0 30px 10px rgba(243, 215, 116, 0.3);
-        }
-        
-        .tile-256 {
-            background: #edcc61;
-            color: #f9f6f2;
-            font-size: 25px;
-            box-shadow: 0 0 30px 10px rgba(243, 215, 116, 0.4);
-        }
-        
-        .tile-512 {
-            background: #edc850;
-            color: #f9f6f2;
-            font-size: 25px;
-        }
-        
-        .tile-1024 {
-            background: #edc53f;
-            color: #f9f6f2;
-            font-size: 20px;
-        }
-        
-        .tile-2048 {
-            background: #edc22e;
-            color: #f9f6f2;
-            font-size: 20px;
-            box-shadow: 0 0 30px 10px rgba(243, 215, 116, 0.5);
-        }
-        
+        /* مساحة الإعلان */
         .ad-container {
-            width: 90%;
-            max-width: 500px;
-            height: 60px;
-            background: #e0e0e0;
+            width: 90%; max-width: 500px;
+            min-height: 100px; /* زادت المساحة قليلاً لتناسب الإعلان */
+            background: #f0f0f0;
             margin-top: 20px;
             border-radius: 5px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: #999;
-            font-size: 12px;
-            border: 1px dashed #bbb;
+            display: flex; justify-content: center; align-items: center;
+            border: 1px solid #ddd;
+            overflow: hidden;
         }
-        
+
+        /* --- تنسيق المحتوى النصي الجديد (SEO) --- */
+        .article-container {
+            width: 90%;
+            max-width: 600px;
+            margin-top: 30px;
+            margin-bottom: 50px;
+            color: #555;
+            line-height: 1.8;
+            text-align: justify;
+        }
+
+        .article-container h2 {
+            color: #776e65;
+            border-bottom: 2px solid #bbada0;
+            padding-bottom: 10px;
+            margin-top: 30px;
+        }
+
+        .article-container p {
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .article-container ul {
+            padding-right: 20px;
+        }
+
+        .article-container li {
+            margin-bottom: 10px;
+        }
+
+        .footer-links {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ccc;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .footer-links a {
+            color: #776e65;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+
+        /* النوافذ المنبثقة */
         .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0, 0, 0, 0.6);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 100;
-            backdrop-filter: blur(5px);
+            display: none; justify-content: center; align-items: center;
+            z-index: 100; backdrop-filter: blur(5px);
         }
         
         .modal-content {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            width: 90%;
-            max-width: 400px;
-            text-align: center;
+            background: white; padding: 30px; border-radius: 15px;
+            width: 90%; max-width: 400px; text-align: center;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
         }
         
-        .modal-title {
-            font-size: 24px;
-            margin-bottom: 15px;
-            color: var(--text-dark);
-        }
-        
         .store-item {
-            background: #f1f1f1;
-            padding: 15px;
-            margin: 10px 0;
-            border-radius: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: pointer;
-            transition: 0.2s;
+            background: #f1f1f1; padding: 15px; margin: 10px 0;
+            border-radius: 10px; display: flex; justify-content: space-between;
+            align-items: center; cursor: pointer; transition: 0.2s;
         }
-        
-        .store-item:hover {
-            background: #e1e1e1;
-        }
-        
-        .price-tag {
-            background: #27ae60;
-            color: white;
-            padding: 5px 10px;
-            border-radius: 15px;
-            font-size: 14px;
-        }
-        
-        .close-modal {
-            margin-top: 15px;
-            background: #e74c3c;
-            width: 100%;
-        }
+        .store-item:hover { background: #e1e1e1; }
+        .price-tag { background: #27ae60; color: white; padding: 5px 10px; border-radius: 15px; font-size: 14px; }
+        .close-modal { margin-top: 15px; background: #e74c3c; width: 100%; }
     </style>
 </head>
 
@@ -349,29 +274,57 @@
     </div>
 
     <div class="game-container" id="game-board">
-        <div class="grid-cell"></div>
-        <div class="grid-cell"></div>
-        <div class="grid-cell"></div>
-        <div class="grid-cell"></div>
-        <div class="grid-cell"></div>
-        <div class="grid-cell"></div>
-        <div class="grid-cell"></div>
-        <div class="grid-cell"></div>
-        <div class="grid-cell"></div>
-        <div class="grid-cell"></div>
-        <div class="grid-cell"></div>
-        <div class="grid-cell"></div>
-        <div class="grid-cell"></div>
-        <div class="grid-cell"></div>
-        <div class="grid-cell"></div>
-        <div class="grid-cell"></div>
+        <!-- الخلايا تتولد تلقائياً -->
+        <div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
+        <div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
+        <div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
+        <div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
     </div>
 
+    <!-- مساحة الإعلان (تأكد من وضع كود ins هنا كما اتفقنا) -->
     <div class="ad-container" id="ad-slot-1">
         <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6359877001554870" crossorigin="anonymous"></script>
-        <span>مساحة إعلانية (Google Ads)</span>
+        <!-- ضع كود الوحدة الإعلانية ins هنا -->
+        <span style="color:#999; font-size:12px;">إعلانك سيظهر هنا بعد الموافقة</span>
     </div>
 
+    <!-- =============================================== -->
+    <!-- المحتوى النصي الجديد (ضروري لقبول أدسنس) -->
+    <!-- =============================================== -->
+    <div class="article-container">
+        <h2>عن لعبة 2048 الاحترافية</h2>
+        <p>لعبة 2048 هي واحدة من أشهر ألعاب الألغاز الرقمية في العالم، صممها المطور الإيطالي غابرييل سيرولي. تعتمد اللعبة على مبدأ بسيط ولكنه يسبب الإدمان: دمج الأرقام المتشابهة للوصول إلى الرقم السحري 2048. إنها ليست مجرد لعبة لتضييع الوقت، بل هي تمرين رياضي ممتاز لعقلك يساعد على تحسين التفكير المنطقي والتخطيط المستقبلي.</p>
+
+        <h2>كيف تلعب وتربح؟</h2>
+        <p>قواعد اللعبة سهلة جداً ويمكن لأي شخص تعلمها في ثوانٍ:</p>
+        <ul>
+            <li><strong>التحريك:</strong> استخدم الأسهم (في الكمبيوتر) أو السحب بإصبعك (في الموبايل) لتحريك جميع المربعات في اتجاه واحد.</li>
+            <li><strong>الدمج:</strong> عندما يتلامس مربعان يحملان نفس الرقم (مثلاً 2 و 2)، يندمجان ليشكلا مربعاً واحداً بمجموعهما (4).</li>
+            <li><strong>الهدف:</strong> استمر في الدمج (4 مع 4 لتصبح 8، ثم 16، 32...) حتى تصل إلى المربع الذي يحمل الرقم <strong>2048</strong>.</li>
+            <li><strong>الخسارة:</strong> تنتهي اللعبة عندما تمتلئ الشبكة تماماً ولا يمكنك دمج أي مربعات.</li>
+        </ul>
+
+        <h2>استراتيجيات الفوز في 2048</h2>
+        <p>للوصول إلى الرقم 2048، لا يمكنك اللعب بعشوائية. إليك أهم الأسرار التي يستخدمها المحترفون:</p>
+        <ol>
+            <li><strong>استراتيجية الزاوية (The Corner Strategy):</strong> حاول دائماً إبقاء المربع الأكبر قيمته في إحدى زوايا الشبكة (يفضل الزاوية السفلى اليمنى أو اليسرى). لا تحركه من هناك أبداً إلا للضرورة القصوى.</li>
+            <li><strong>رتب الأرقام تنازلياً:</strong> حاول جعل الأرقام بجانب الزاوية مرتبة، بحيث يكون الرقم الأكبر في الزاوية والذي يليه بجانبه مباشرة، مما يسهل عملية الدمج المتسلسل (Chain Reaction).</li>
+            <li><strong>فكر خطوة للأمام:</strong> قبل كل حركة، تخيل أين ستظهر الأرقام الجديدة وكيف ستؤثر على ترتيب لوحتك.</li>
+        </ol>
+
+        <h2>فوائد ألعاب الألغاز الرقمية</h2>
+        <p>أثبتت الدراسات أن ألعاباً مثل 2048 والسودوكو تساهم في تنشيط الذاكرة، زيادة التركيز، وتقليل التوتر. إنها رياضة العقل اليومية التي يمكنك ممارستها في أي وقت ومكان.</p>
+
+        <div class="footer-links">
+            <p>&copy; 2025 جميع الحقوق محفوظة.</p>
+            <!-- هذه الروابط شكلية ومهمة جداً لأدسنس -->
+            <a href="#">سياسة الخصوصية</a> | 
+            <a href="#">اتصل بنا</a> | 
+            <a href="#">شروط الاستخدام</a>
+        </div>
+    </div>
+
+    <!-- نوافذ المتجر -->
     <div class="modal-overlay" id="store-modal">
         <div class="modal-content">
             <h2 class="modal-title">💎 متجر اللعبة</h2>
@@ -394,7 +347,7 @@
 
     <script>
         // =========================================================
-        // 1. محرك اللعبة (تم نقله للأعلى ليعمل فوراً)
+        // محرك اللعبة (JavaScript)
         // =========================================================
 
         const boardSize = 4;
@@ -409,7 +362,6 @@
         const bestScoreElement = document.getElementById('best-score');
         const undoDisplay = document.getElementById('undo-display');
 
-        // تهيئة أولية
         bestScoreElement.innerText = bestScore;
 
         function startNewGame() {
@@ -431,9 +383,7 @@
 
         function addRandomTile() {
             let emptyCells = [];
-            board.forEach((val, index) => {
-                if (val === 0) emptyCells.push(index);
-            });
+            board.forEach((val, index) => { if (val === 0) emptyCells.push(index); });
             if (emptyCells.length > 0) {
                 let randIndex = emptyCells[Math.floor(Math.random() * emptyCells.length)];
                 board[randIndex] = Math.random() > 0.9 ? 4 : 2;
@@ -466,9 +416,7 @@
             arr = arr.concat(zeros);
             for (let i = 0; i < boardSize - 1; i++) {
                 if (arr[i] !== 0 && arr[i] === arr[i + 1]) {
-                    arr[i] *= 2;
-                    score += arr[i];
-                    arr[i + 1] = 0;
+                    arr[i] *= 2; score += arr[i]; arr[i + 1] = 0;
                 }
             }
             arr = arr.filter(val => val);
@@ -478,10 +426,7 @@
         }
 
         function move(direction) {
-            let hasMoved = false;
             let oldBoard = [...board];
-
-            // حفظ الحالة للتراجع قبل التغيير
             let tempScore = score;
 
             if (direction === 'left' || direction === 'right') {
@@ -501,8 +446,7 @@
             }
 
             if (JSON.stringify(oldBoard) !== JSON.stringify(board)) {
-                // تم التحرك بنجاح
-                saveState(oldBoard, tempScore); // حفظ الحالة القديمة
+                saveState(oldBoard, tempScore);
                 addRandomTile();
                 scoreElement.innerText = score;
                 if (score > bestScore) {
@@ -514,9 +458,7 @@
             }
         }
 
-        // --- مستمعات الأحداث (Event Listeners) ---
-
-        // لوحة المفاتيح
+        // Keyboard & Touch
         document.addEventListener('keydown', (e) => {
             if (e.key === 'ArrowRight') move('right');
             if (e.key === 'ArrowLeft') move('left');
@@ -524,45 +466,25 @@
             if (e.key === 'ArrowDown') move('down');
         });
 
-        // اللمس (للموبايل)
-        let touchStartX = 0;
-        let touchStartY = 0;
-
+        let touchStartX = 0, touchStartY = 0;
         boardElement.addEventListener('touchstart', (e) => {
             touchStartX = e.changedTouches[0].screenX;
             touchStartY = e.changedTouches[0].screenY;
-        }, {
-            passive: false
-        });
+        }, { passive: false });
 
         boardElement.addEventListener('touchend', (e) => {
             e.preventDefault();
-            let touchEndX = e.changedTouches[0].screenX;
-            let touchEndY = e.changedTouches[0].screenY;
-            let dx = touchEndX - touchStartX;
-            let dy = touchEndY - touchStartY;
-
+            let dx = e.changedTouches[0].screenX - touchStartX;
+            let dy = e.changedTouches[0].screenY - touchStartY;
             if (Math.abs(dx) > Math.abs(dy)) {
-                if (Math.abs(dx) > 10) { // حساسية اللمس
-                    if (dx > 0) move('right');
-                    else move('left');
-                }
+                if (Math.abs(dx) > 10) (dx > 0) ? move('right') : move('left');
             } else {
-                if (Math.abs(dy) > 10) {
-                    if (dy > 0) move('down');
-                    else move('up');
-                }
+                if (Math.abs(dy) > 10) (dy > 0) ? move('down') : move('up');
             }
-        }, {
-            passive: false
-        });
+        }, { passive: false });
 
-        // الوظائف الإضافية
         function saveState(oldBoard, oldScore) {
-            previousState = {
-                board: [...oldBoard],
-                score: oldScore
-            };
+            previousState = { board: [...oldBoard], score: oldScore };
         }
 
         function undoMove() {
@@ -583,37 +505,21 @@
             }
         }
 
-        function openStore() {
-            document.getElementById('store-modal').style.display = 'flex';
-        }
-
-        function closeStore() {
-            document.getElementById('store-modal').style.display = 'none';
-        }
-
-        function simulatePurchase(itemId) {
-            alert("جارِ الاتصال ببوابة الدفع...");
+        function openStore() { document.getElementById('store-modal').style.display = 'flex'; }
+        function closeStore() { document.getElementById('store-modal').style.display = 'none'; }
+        function simulatePurchase(id) {
+            alert("جاري الاتصال...");
             setTimeout(() => {
-                alert("تم الشراء بنجاح!");
-                if (itemId === 'undo_pack') {
-                    undoLimit += 50;
-                    undoDisplay.innerText = undoLimit;
-                }
+                alert("تم!"); if(id === 'undo_pack') { undoLimit+=50; undoDisplay.innerText = undoLimit; }
                 closeStore();
             }, 500);
         }
 
-        // تشغيل اللعبة فوراً
         startNewGame();
         window.addEventListener('resize', updateBoard);
 
-
-        // =========================================================
-        // 2. إعدادات Firebase (في الأسفل ومعزولة)
-        // =========================================================
-
+        // Firebase Init (Safe Mode)
         const firebaseConfig = {
-            // استبدل هذه القيم ببياناتك الحقيقية من كونسول فيرباس
             apiKey: "AIzaSyA03XF-ijDTp1C3jOcmo2ajZL4RvUlcZd0",
             authDomain: "gams-dca3f.firebaseapp.com",
             databaseURL: "https://gams-dca3f-default-rtdb.firebaseio.com",
@@ -623,21 +529,9 @@
             appId: "1:805484875796:web:3f5390ad337f7f9c575701",
             measurementId: "G-R03SS18JVS"
         };
-
-        // محاولة الاتصال بالفيرباس بشكل آمن
         try {
-            if (typeof firebase !== 'undefined') {
-                firebase.initializeApp(firebaseConfig);
-                console.log("تم تهيئة Firebase");
-            } else {
-                console.log("مكتبة Firebase لم يتم تحميلها (تأكد من الاتصال بالإنترنت)");
-            }
-        } catch (error) {
-            // هذا هو الجزء المهم: إذا حدث خطأ في البيانات، لن تتوقف اللعبة
-            console.warn("تنبيه: لم يتم الاتصال بـ Firebase لأن البيانات غير صحيحة، لكن اللعبة ستعمل.");
-        }
+            if (typeof firebase !== 'undefined') firebase.initializeApp(firebaseConfig);
+        } catch (e) { console.warn("Firebase skipped"); }
     </script>
 </body>
-
 </html>
-
