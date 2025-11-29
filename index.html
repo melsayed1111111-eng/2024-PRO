@@ -1,494 +1,219 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="description" content="العب 2048 أونلاين. لعبة الألغاز الرقمية الأشهر لتنشيط العقل. تعلم استراتيجيات الفوز وحقق أعلى نتيجة.">
-    <title>لعبة 2048 - النسخة الاحترافية | العب أونلاين</title>
-
-    <!-- مكتبات Firebase -->
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-analytics-compat.js"></script>
-
-    <!-- الخطوط -->
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
+    <meta name="description" content="العب لعبة 2048 الأصلية أونلاين. لعبة ذكاء وألغاز ممتعة. تعلم استراتيجيات الفوز في 2048 وحقق أعلى نتيجة الآن مجاناً.">
+    <title>لعبة 2048 - تحدي الذكاء | العب أونلاين</title>
+    
+    <!-- خط تجوال من جوجل -->
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&display=swap" rel="stylesheet">
 
     <style>
-        /* --- التنسيقات (CSS) --- */
         :root {
-            --bg-color: #faf8ef;
-            --grid-bg: #bbada0;
-            --cell-bg: rgba(238, 228, 218, 0.35);
-            --text-dark: #776e65;
-            --primary-btn: #8f7a66;
-            --undo-btn: #e67e22;
-            --store-btn: #27ae60;
+            --bg-body: #faf8ef;
+            --bg-game: #bbada0;
+            --bg-cell: rgba(238, 228, 218, 0.35);
+            --color-text: #776e65;
+            --color-white: #f9f6f2;
         }
-        
+
+        * { box-sizing: border-box; }
+
         body {
-            margin: 0;
-            padding: 0;
+            margin: 0; padding: 0;
             font-family: 'Tajawal', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-dark);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            background-color: var(--bg-body);
+            color: var(--color-text);
+            display: flex; flex-direction: column; align-items: center;
             min-height: 100vh;
-            user-select: none;
-            overscroll-behavior: none;
         }
-        
-        .header-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 90%;
-            max-width: 500px;
-            margin-top: 20px;
+
+        /* --- الهيدر والنتائج --- */
+        .header {
+            width: 100%; max-width: 500px;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 20px 10px;
         }
-        
-        .title {
-            font-size: 60px;
-            font-weight: 900;
-            margin: 0;
-            color: var(--text-dark);
+
+        h1 { font-size: 50px; margin: 0; font-weight: 800; color: #776e65; }
+
+        .scores-box { display: flex; gap: 10px; }
+        .score-card {
+            background: #bbada0; padding: 5px 15px;
+            border-radius: 5px; text-align: center; color: white; min-width: 80px;
         }
-        
-        .scores-container {
-            display: flex;
-            gap: 5px;
+        .score-title { font-size: 12px; text-transform: uppercase; color: #eee4da; }
+        .score-val { font-size: 20px; font-weight: bold; }
+
+        /* --- أزرار التحكم --- */
+        .controls {
+            width: 100%; max-width: 500px;
+            display: flex; justify-content: space-between;
+            padding: 0 10px 20px 10px;
         }
-        
-        .score-box {
-            background: #bbada0;
-            padding: 10px 20px;
-            border-radius: 6px;
-            color: white;
-            text-align: center;
-            min-width: 70px;
-        }
-        
-        .score-label {
-            font-size: 12px;
-            opacity: 0.8;
-            text-transform: uppercase;
-        }
-        
-        .score-val {
-            font-size: 20px;
-            font-weight: bold;
-        }
-        
-        .controls-bar {
-            display: flex;
-            justify-content: space-between;
-            width: 90%;
-            max-width: 500px;
-            margin: 15px 0;
-        }
-        
         .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            color: white;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 16px;
-            transition: transform 0.1s;
-            display: flex;
-            align-items: center;
-            gap: 5px;
+            background: #8f7a66; color: white;
+            border: none; padding: 10px 20px;
+            border-radius: 5px; font-weight: bold; cursor: pointer;
+            font-family: 'Tajawal', sans-serif; font-size: 16px;
         }
-        
-        .btn:active { transform: scale(0.95); }
-        .btn-new { background-color: var(--primary-btn); }
-        .btn-undo { background-color: var(--undo-btn); position: relative; }
-        
-        .undo-count {
-            background: white;
-            color: var(--undo-btn);
-            border-radius: 50%;
-            width: 20px; height: 20px;
-            display: flex; justify-content: center; align-items: center;
-            font-size: 12px;
-        }
-        
-        .btn-store { background-color: var(--store-btn); }
-        
-        .game-container {
+        .btn:hover { background: #7f6a56; }
+        .btn-restart { background: #e67e22; }
+
+        /* --- منطقة اللعب --- */
+        .game-wrapper {
             position: relative;
-            width: 90vw; height: 90vw;
-            max-width: 500px; max-height: 500px;
-            background: var(--grid-bg);
+            background: var(--bg-game);
             border-radius: 10px;
+            width: 350px; height: 350px;
             padding: 10px;
+            touch-action: none;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .grid-container {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             grid-template-rows: repeat(4, 1fr);
-            gap: 10px;
-            touch-action: none;
+            gap: 10px; width: 100%; height: 100%;
         }
-        
+
         .grid-cell {
-            background: var(--cell-bg);
-            border-radius: 5px;
-            width: 100%; height: 100%;
+            background: var(--bg-cell);
+            border-radius: 5px; width: 100%; height: 100%;
         }
-        
+
+        .tile-container {
+            position: absolute; top: 0; left: 0;
+            width: 100%; height: 100%; padding: 10px;
+            pointer-events: none;
+        }
+
         .tile {
             position: absolute;
-            display: flex; justify-content: center; align-items: center;
-            font-weight: bold; border-radius: 5px;
-            transition: all 0.15s ease-in-out;
-            z-index: 10;
-            animation: appear 0.2s ease-in-out;
-        }
-        
-        @keyframes appear {
-            0% { opacity: 0; transform: scale(0); }
-            100% { opacity: 1; transform: scale(1); }
-        }
-        
-        /* ألوان المربعات */
-        .tile-2 { background: #eee4da; color: #776e65; font-size: 45px; }
-        .tile-4 { background: #ede0c8; color: #776e65; font-size: 45px; }
-        .tile-8 { background: #f2b179; color: #f9f6f2; font-size: 40px; }
-        .tile-16 { background: #f59563; color: #f9f6f2; font-size: 35px; }
-        .tile-32 { background: #f67c5f; color: #f9f6f2; font-size: 35px; }
-        .tile-64 { background: #f65e3b; color: #f9f6f2; font-size: 30px; }
-        .tile-128 { background: #edcf72; color: #f9f6f2; font-size: 25px; box-shadow: 0 0 30px 10px rgba(243, 215, 116, 0.3); }
-        .tile-256 { background: #edcc61; color: #f9f6f2; font-size: 25px; box-shadow: 0 0 30px 10px rgba(243, 215, 116, 0.4); }
-        .tile-512 { background: #edc850; color: #f9f6f2; font-size: 25px; }
-        .tile-1024 { background: #edc53f; color: #f9f6f2; font-size: 20px; }
-        .tile-2048 { background: #edc22e; color: #f9f6f2; font-size: 20px; box-shadow: 0 0 30px 10px rgba(243, 215, 116, 0.5); }
-        
-        /* مساحة الإعلان */
-        .ad-container {
-            width: 90%; max-width: 500px;
-            min-height: 100px; 
-            background: #fff;
-            margin-top: 20px;
+            width: calc((100% - 50px) / 4);
+            height: calc((100% - 50px) / 4);
             border-radius: 5px;
             display: flex; justify-content: center; align-items: center;
-            overflow: hidden;
+            font-weight: bold; font-size: 35px;
+            transition: transform 0.15s ease-in-out;
+            z-index: 10;
         }
 
-        /* --- تنسيق المحتوى النصي الجديد (SEO) --- */
-        .article-container {
-            width: 90%; max-width: 600px;
-            margin-top: 30px; margin-bottom: 50px;
-            color: #555; line-height: 1.8; text-align: justify;
-        }
-        .article-container h2 {
-            color: #776e65; border-bottom: 2px solid #bbada0;
-            padding-bottom: 10px; margin-top: 30px;
-        }
-        .article-container p { margin-bottom: 15px; font-size: 16px; }
-        .article-container ul { padding-right: 20px; }
-        .article-container li { margin-bottom: 10px; }
+        /* ألوان المربعات */
+        .tile-2 { background: #eee4da; color: #776e65; }
+        .tile-4 { background: #ede0c8; color: #776e65; }
+        .tile-8 { background: #f2b179; color: #f9f6f2; }
+        .tile-16 { background: #f59563; color: #f9f6f2; }
+        .tile-32 { background: #f67c5f; color: #f9f6f2; }
+        .tile-64 { background: #f65e3b; color: #f9f6f2; }
+        .tile-128 { background: #edcf72; color: #f9f6f2; font-size: 30px; }
+        .tile-256 { background: #edcc61; color: #f9f6f2; font-size: 30px; }
+        .tile-512 { background: #edc850; color: #f9f6f2; font-size: 30px; }
+        .tile-1024 { background: #edc53f; color: #f9f6f2; font-size: 25px; }
+        .tile-2048 { background: #edc22e; color: #f9f6f2; font-size: 25px; box-shadow: 0 0 30px 5px rgba(243, 215, 116, 0.5); }
 
-        .footer-links {
-            margin-top: 40px; padding-top: 20px; border-top: 1px solid #ccc;
-            text-align: center; font-size: 14px;
-        }
-        .footer-links a { color: #776e65; text-decoration: none; margin: 0 10px; }
-
-        /* النوافذ المنبثقة */
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.6);
-            display: none; justify-content: center; align-items: center;
-            z-index: 100; backdrop-filter: blur(5px);
-        }
-        .modal-content {
-            background: white; padding: 30px; border-radius: 15px;
-            width: 90%; max-width: 400px; text-align: center;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-        }
-        .store-item {
-            background: #f1f1f1; padding: 15px; margin: 10px 0;
-            border-radius: 10px; display: flex; justify-content: space-between;
-            align-items: center; cursor: pointer; transition: 0.2s;
-        }
-        .store-item:hover { background: #e1e1e1; }
-        .price-tag { background: #27ae60; color: white; padding: 5px 10px; border-radius: 15px; font-size: 14px; }
-        .close-modal { margin-top: 15px; background: #e74c3c; width: 100%; }
-    </style>
-</head>
-
-<body>
-
-    <div class="header-container">
-        <h1 class="title">2048</h1>
-        <div class="scores-container">
-            <div class="score-box">
-                <div class="score-label">النتيجة</div>
-                <div class="score-val" id="score">0</div>
-            </div>
-            <div class="score-box">
-                <div class="score-label">الأفضل</div>
-                <div class="score-val" id="best-score">0</div>
-            </div>
-        </div>
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="description" content="العب 2048 أونلاين. لعبة الألغاز الرقمية الأشهر لتنشيط العقل. تعلم استراتيجيات الفوز وحقق أعلى نتيجة.">
-    <title>لعبة 2048 - النسخة الاحترافية | العب أونلاين</title>
-
-    <!-- مكتبات Firebase -->
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-analytics-compat.js"></script>
-
-    <!-- الخطوط -->
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
-
-    <style>
-        /* --- التنسيقات (CSS) --- */
-        :root {
-            --bg-color: #faf8ef;
-            --grid-bg: #bbada0;
-            --cell-bg: rgba(238, 228, 218, 0.35);
-            --text-dark: #776e65;
-            --primary-btn: #8f7a66;
-            --undo-btn: #e67e22;
-            --store-btn: #27ae60;
-        }
-        
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Tajawal', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-dark);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            user-select: none;
-            overscroll-behavior: none;
-        }
-        
-        .header-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 90%;
-            max-width: 500px;
-            margin-top: 20px;
-        }
-        
-        .title {
-            font-size: 60px;
-            font-weight: 900;
-            margin: 0;
-            color: var(--text-dark);
-        }
-        
-        .scores-container {
-            display: flex;
-            gap: 5px;
-        }
-        
-        .score-box {
-            background: #bbada0;
-            padding: 10px 20px;
-            border-radius: 6px;
-            color: white;
+        /* --- إشعار الخسارة/الفوز --- */
+        .game-message {
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(238, 228, 218, 0.73);
+            display: none; flex-direction: column;
+            justify-content: center; align-items: center;
+            z-index: 100; border-radius: 10px;
             text-align: center;
-            min-width: 70px;
         }
-        
-        .score-label {
-            font-size: 12px;
-            opacity: 0.8;
-            text-transform: uppercase;
-        }
-        
-        .score-val {
-            font-size: 20px;
-            font-weight: bold;
-        }
-        
-        .controls-bar {
-            display: flex;
-            justify-content: space-between;
-            width: 90%;
-            max-width: 500px;
-            margin: 15px 0;
-        }
-        
-        .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            color: white;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 16px;
-            transition: transform 0.1s;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-        
-        .btn:active { transform: scale(0.95); }
-        .btn-new { background-color: var(--primary-btn); }
-        .btn-undo { background-color: var(--undo-btn); position: relative; }
-        
-        .undo-count {
-            background: white;
-            color: var(--undo-btn);
-            border-radius: 50%;
-            width: 20px; height: 20px;
-            display: flex; justify-content: center; align-items: center;
-            font-size: 12px;
-        }
-        
-        .btn-store { background-color: var(--store-btn); }
-        
-        .game-container {
-            position: relative;
-            width: 90vw; height: 90vw;
-            max-width: 500px; max-height: 500px;
-            background: var(--grid-bg);
-            border-radius: 10px;
-            padding: 10px;
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            grid-template-rows: repeat(4, 1fr);
-            gap: 10px;
-            touch-action: none;
-        }
-        
-        .grid-cell {
-            background: var(--cell-bg);
-            border-radius: 5px;
-            width: 100%; height: 100%;
-        }
-        
-        .tile {
-            position: absolute;
-            display: flex; justify-content: center; align-items: center;
-            font-weight: bold; border-radius: 5px;
-            transition: all 0.15s ease-in-out;
-            z-index: 10;
-            animation: appear 0.2s ease-in-out;
-        }
-        
-        @keyframes appear {
-            0% { opacity: 0; transform: scale(0); }
-            100% { opacity: 1; transform: scale(1); }
-        }
-        
-        /* ألوان المربعات */
-        .tile-2 { background: #eee4da; color: #776e65; font-size: 45px; }
-        .tile-4 { background: #ede0c8; color: #776e65; font-size: 45px; }
-        .tile-8 { background: #f2b179; color: #f9f6f2; font-size: 40px; }
-        .tile-16 { background: #f59563; color: #f9f6f2; font-size: 35px; }
-        .tile-32 { background: #f67c5f; color: #f9f6f2; font-size: 35px; }
-        .tile-64 { background: #f65e3b; color: #f9f6f2; font-size: 30px; }
-        .tile-128 { background: #edcf72; color: #f9f6f2; font-size: 25px; box-shadow: 0 0 30px 10px rgba(243, 215, 116, 0.3); }
-        .tile-256 { background: #edcc61; color: #f9f6f2; font-size: 25px; box-shadow: 0 0 30px 10px rgba(243, 215, 116, 0.4); }
-        .tile-512 { background: #edc850; color: #f9f6f2; font-size: 25px; }
-        .tile-1024 { background: #edc53f; color: #f9f6f2; font-size: 20px; }
-        .tile-2048 { background: #edc22e; color: #f9f6f2; font-size: 20px; box-shadow: 0 0 30px 10px rgba(243, 215, 116, 0.5); }
-        
-        /* مساحة الإعلان */
-        .ad-container {
-            width: 90%; max-width: 500px;
-            min-height: 100px; 
-            background: #fff;
-            margin-top: 20px;
-            border-radius: 5px;
-            display: flex; justify-content: center; align-items: center;
+        .game-message p { font-size: 40px; font-weight: bold; margin: 0 0 20px 0; }
+
+        /* --- مساحة الإعلان --- */
+        .ad-space {
+            width: 100%; max-width: 350px;
+            min-height: 250px;
+            background: #fff; border: 1px solid #eee;
+            margin: 20px 0;
+            display: flex; align-items: center; justify-content: center;
             overflow: hidden;
         }
 
-        /* --- تنسيق المحتوى النصي الجديد (SEO) --- */
-        .article-container {
+        /* --- المحتوى النصي (SEO) --- */
+        .content-area {
             width: 90%; max-width: 600px;
-            margin-top: 30px; margin-bottom: 50px;
-            color: #555; line-height: 1.8; text-align: justify;
+            line-height: 1.8; text-align: justify;
+            margin-bottom: 50px;
+            background: #fff; padding: 20px;
+            border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
-        .article-container h2 {
-            color: #776e65; border-bottom: 2px solid #bbada0;
-            padding-bottom: 10px; margin-top: 30px;
+        .content-area h2 { border-bottom: 2px solid #bbada0; padding-bottom: 10px; color: #555; font-size: 22px; }
+        .content-area p, .content-area li { font-size: 16px; color: #666; }
+        
+        footer {
+            margin-top: auto; padding: 20px; width: 100%;
+            background: #333; color: white; text-align: center; font-size: 14px;
         }
-        .article-container p { margin-bottom: 15px; font-size: 16px; }
-        .article-container ul { padding-right: 20px; }
-        .article-container li { margin-bottom: 10px; }
+        footer a { color: #f2b179; text-decoration: none; margin: 0 10px; }
 
-        .footer-links {
-            margin-top: 40px; padding-top: 20px; border-top: 1px solid #ccc;
-            text-align: center; font-size: 14px;
+        /* --- التجاوب مع الموبايل --- */
+        @media screen and (max-width: 500px) {
+            .header, .controls { width: 90%; }
+            h1 { font-size: 40px; }
+            .game-wrapper {
+                width: 300px; height: 300px;
+            }
+            .tile {
+                width: calc((300px - 50px) / 4);
+                height: calc((300px - 50px) / 4);
+                font-size: 24px;
+            }
+            .ad-space { width: 300px; }
         }
-        .footer-links a { color: #776e65; text-decoration: none; margin: 0 10px; }
-
-        /* النوافذ المنبثقة */
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.6);
-            display: none; justify-content: center; align-items: center;
-            z-index: 100; backdrop-filter: blur(5px);
-        }
-        .modal-content {
-            background: white; padding: 30px; border-radius: 15px;
-            width: 90%; max-width: 400px; text-align: center;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-        }
-        .store-item {
-            background: #f1f1f1; padding: 15px; margin: 10px 0;
-            border-radius: 10px; display: flex; justify-content: space-between;
-            align-items: center; cursor: pointer; transition: 0.2s;
-        }
-        .store-item:hover { background: #e1e1e1; }
-        .price-tag { background: #27ae60; color: white; padding: 5px 10px; border-radius: 15px; font-size: 14px; }
-        .close-modal { margin-top: 15px; background: #e74c3c; width: 100%; }
     </style>
 </head>
-
 <body>
 
-    <div class="header-container">
-        <h1 class="title">2048</h1>
-        <div class="scores-container">
-            <div class="score-box">
-                <div class="score-label">النتيجة</div>
+    <!-- الهيدر -->
+    <div class="header">
+        <h1>2048</h1>
+        <div class="scores-box">
+            <div class="score-card">
+                <div class="score-title">النتيجة</div>
                 <div class="score-val" id="score">0</div>
             </div>
-            <div class="score-box">
-                <div class="score-label">الأفضل</div>
-                <div class="score-val" id="best-score">0</div>
+            <div class="score-card">
+                <div class="score-title">الأفضل</div>
+                <div class="score-val" id="bestScore">0</div>
             </div>
         </div>
     </div>
 
-    <div class="controls-bar">
-        <button class="btn btn-store" onclick="openStore()">🛒 المتجر</button>
-        <button class="btn btn-undo" onclick="undoMove()">↩️ تراجع <span class="undo-count" id="undo-display">3</span></button>
-        <button class="btn btn-new" onclick="startNewGame()">لعبة جديدة</button>
+    <!-- التحكم -->
+    <div class="controls">
+        <p style="margin:0; font-size:14px; align-self: center;">ادمج الأرقام لتصل لـ <strong>2048!</strong></p>
+        <button class="btn btn-restart" onclick="game.restart()">لعبة جديدة</button>
     </div>
 
-    <div class="game-container" id="game-board">
-        <!-- الخلايا تتولد تلقائياً -->
-        <div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
-        <div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
-        <div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
-        <div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
+    <!-- اللعبة -->
+    <div class="game-wrapper" id="gameArea">
+        <div class="game-message" id="gameMessage">
+            <p id="messageText">انتهت اللعبة!</p>
+            <button class="btn btn-restart" onclick="game.restart()">حاول مرة أخرى</button>
+        </div>
+
+        <div class="grid-container">
+            <div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
+            <div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
+            <div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
+            <div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
+        </div>
+
+        <div class="tile-container" id="tileContainer"></div>
     </div>
 
-    <!-- مساحة الإعلان -->
-    <div class="ad-container" id="ad-slot-1">
+    <!-- مكان الإعلان (جاهز برقم الناشر الخاص بك) -->
+    <div class="ad-space">
         <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6359877001554870"
              crossorigin="anonymous"></script>
-        <!-- Game-Ad -->
+        <!-- إعلان متجاوب -->
         <ins class="adsbygoogle"
              style="display:block"
              data-ad-client="ca-pub-6359877001554870"
@@ -500,46 +225,226 @@
         </script>
     </div>
 
-    <!-- =============================================== -->
-    <!-- المحتوى النصي -->
-    <!-- =============================================== -->
-    <div class="article-container">
-        <h2>عن لعبة 2048 الاحترافية</h2>
-        <p>لعبة 2048 هي واحدة من أشهر ألعاب الألغاز الرقمية في العالم، صممها المطور الإيطالي غابرييل سيرولي. تعتمد اللعبة على مبدأ بسيط ولكنه يسبب الإدمان: دمج الأرقام المتشابهة للوصول إلى الرقم السحري 2048. إنها ليست مجرد لعبة لتضييع الوقت، بل هي تمرين رياضي ممتاز لعقلك يساعد على تحسين التفكير المنطقي والتخطيط المستقبلي.</p>
+    <!-- المحتوى النصي المهم للقبول -->
+    <div class="content-area">
+        <h2>عن لعبة 2048</h2>
+        <p>لعبة 2048 هي واحدة من أشهر ألعاب الألغاز الرقمية التي تجمع بين المتعة وتنمية مهارات التفكير. هدفك في اللعبة هو دمج المربعات التي تحمل نفس الرقم لتكوين أرقام أكبر، بدءاً من 2 و 4 وصولاً إلى الرقم السحري 2048.</p>
 
-        <h2>كيف تلعب وتربح؟</h2>
-        <p>قواعد اللعبة سهلة جداً ويمكن لأي شخص تعلمها في ثوانٍ:</p>
+        <h2>كيف تلعب؟</h2>
         <ul>
-            <li><strong>التحريك:</strong> استخدم الأسهم (في الكمبيوتر) أو السحب بإصبعك (في الموبايل) لتحريك جميع المربعات في اتجاه واحد.</li>
-            <li><strong>الدمج:</strong> عندما يتلامس مربعان يحملان نفس الرقم (مثلاً 2 و 2)، يندمجان ليشكلا مربعاً واحداً بمجموعهما (4).</li>
-            <li><strong>الهدف:</strong> استمر في الدمج (4 مع 4 لتصبح 8، ثم 16، 32...) حتى تصل إلى المربع الذي يحمل الرقم <strong>2048</strong>.</li>
-            <li><strong>الخسارة:</strong> تنتهي اللعبة عندما تمتلئ الشبكة تماماً ولا يمكنك دمج أي مربعات.</li>
+            <li>اسحب الشاشة (للموبايل) أو استخدم الأسهم (للكمبيوتر) لتحريك جميع المربعات في اتجاه واحد.</li>
+            <li>عندما يلتقي مربعان يحملان نفس الرقم، يندمجان في مربع واحد بمجموع الرقمين (مثلاً 4+4=8).</li>
+            <li>خطط لتحركاتك بعناية حتى لا تمتلئ الشبكة وتخسر اللعبة.</li>
         </ul>
 
-        <h2>استراتيجيات الفوز في 2048</h2>
-        <p>للوصول إلى الرقم 2048، لا يمكنك اللعب بعشوائية. إليك أهم الأسرار التي يستخدمها المحترفون:</p>
-        <ol>
-            <li><strong>استراتيجية الزاوية (The Corner Strategy):</strong> حاول دائماً إبقاء المربع الأكبر قيمته في إحدى زوايا الشبكة (يفضل الزاوية السفلى اليمنى أو اليسرى). لا تحركه من هناك أبداً إلا للضرورة القصوى.</li>
-            <li><strong>رتب الأرقام تنازلياً:</strong> حاول جعل الأرقام بجانب الزاوية مرتبة، بحيث يكون الرقم الأكبر في الزاوية والذي يليه بجانبه مباشرة، مما يسهل عملية الدمج المتسلسل (Chain Reaction).</li>
-            <li><strong>فكر خطوة للأمام:</strong> قبل كل حركة، تخيل أين ستظهر الأرقام الجديدة وكيف ستؤثر على ترتيب لوحتك.</li>
-        </ol>
-
-        <h2>فوائد ألعاب الألغاز الرقمية</h2>
-        <p>أثبتت الدراسات أن ألعاباً مثل 2048 والسودوكو تساهم في تنشيط الذاكرة، زيادة التركيز، وتقليل التوتر. إنها رياضة العقل اليومية التي يمكنك ممارستها في أي وقت ومكان.</p>
-
-        <div class="footer-links">
-            <p>&copy; 2025 جميع الحقوق محفوظة.</p>
-            <a href="#">سياسة الخصوصية</a> | 
-            <a href="#">اتصل بنا</a> | 
-            <a href="#">شروط الاستخدام</a>
-        </div>
+        <h2>نصائح للفوز</h2>
+        <p>حاول دائماً الاحتفاظ بالمربع ذي القيمة الأكبر في إحدى الزوايا السفلية. لا تحركه من مكانه إلا للضرورة القصوى، وقم ببناء تسلسل الأرقام حوله.</p>
     </div>
 
-    <!-- نوافذ المتجر -->
-    <div class="modal-overlay" id="store-modal">
-        <div class="modal-content">
-            <h2 class="modal-title">💎 متجر اللعبة</h2>
-            <p>قم بترقية تجربتك وادعم المطور</p>
+    <footer>
+        <p>&copy; 2025 جميع الحقوق محفوظة.</p>
+        <p>
+            <a href="#">سياسة الخصوصية</a> | 
+            <a href="#">اتصل بنا</a>
+        </p>
+    </footer>
+
+    <script>
+        class Game2048 {
+            constructor() {
+                this.grid = Array(4).fill().map(() => Array(4).fill(0));
+                this.score = 0;
+                this.bestScore = localStorage.getItem('bestScore') || 0;
+                this.tileContainer = document.getElementById('tileContainer');
+                this.scoreDisplay = document.getElementById('score');
+                this.bestScoreDisplay = document.getElementById('bestScore');
+                this.msgContainer = document.getElementById('gameMessage');
+                this.msgText = document.getElementById('messageText');
+                
+                this.init();
+                this.setupInput();
+            }
+
+            init() {
+                this.grid = Array(4).fill().map(() => Array(4).fill(0));
+                this.score = 0;
+                this.updateScore();
+                this.clearTiles();
+                this.addRandomTile();
+                this.addRandomTile();
+                this.drawTiles();
+                this.msgContainer.style.display = 'none';
+            }
+
+            restart() {
+                this.init();
+            }
+
+            addRandomTile() {
+                let emptyCells = [];
+                for (let r = 0; r < 4; r++) {
+                    for (let c = 0; c < 4; c++) {
+                        if (this.grid[r][c] === 0) emptyCells.push({r, c});
+                    }
+                }
+                if (emptyCells.length > 0) {
+                    let {r, c} = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+                    this.grid[r][c] = Math.random() < 0.9 ? 2 : 4;
+                }
+            }
+
+            clearTiles() {
+                this.tileContainer.innerHTML = '';
+            }
+
+            drawTiles() {
+                this.clearTiles();
+                const containerSize = document.querySelector('.game-wrapper').clientWidth;
+                const gap = 10;
+                const tileSize = (containerSize - 50) / 4; 
+
+                for (let r = 0; r < 4; r++) {
+                    for (let c = 0; c < 4; c++) {
+                        if (this.grid[r][c] !== 0) {
+                            let tile = document.createElement('div');
+                            tile.classList.add('tile', `tile-${this.grid[r][c]}`);
+                            tile.innerText = this.grid[r][c];
+                            
+                            let left = 10 + c * (tileSize + gap);
+                            let top = 10 + r * (tileSize + gap);
+
+                            tile.style.width = `${tileSize}px`;
+                            tile.style.height = `${tileSize}px`;
+                            tile.style.transform = `translate(${left}px, ${top}px)`;
+                            
+                            this.tileContainer.appendChild(tile);
+                        }
+                    }
+                }
+            }
+
+            slide(row) {
+                let arr = row.filter(val => val);
+                let missing = 4 - arr.length;
+                let zeros = Array(missing).fill(0);
+                return arr.concat(zeros);
+            }
+
+            combine(row) {
+                for (let i = 0; i < 3; i++) {
+                    if (row[i] !== 0 && row[i] === row[i + 1]) {
+                        row[i] *= 2;
+                        row[i + 1] = 0;
+                        this.score += row[i];
+                    }
+                }
+                return row;
+            }
+
+            move(direction) {
+                let oldGrid = JSON.stringify(this.grid);
+                let flipped = false;
+                let rotated = false;
+
+                if (direction === 'ArrowLeft') {
+                    // Normal
+                } else if (direction === 'ArrowRight') {
+                    this.grid = this.grid.map(row => row.reverse());
+                    flipped = true;
+                } else if (direction === 'ArrowUp') {
+                    this.grid = this.transpose(this.grid);
+                    rotated = true;
+                } else if (direction === 'ArrowDown') {
+                    this.grid = this.transpose(this.grid);
+                    this.grid = this.grid.map(row => row.reverse());
+                    rotated = true;
+                    flipped = true;
+                }
+
+                for (let r = 0; r < 4; r++) {
+                    this.grid[r] = this.slide(this.grid[r]);
+                    this.grid[r] = this.combine(this.grid[r]);
+                    this.grid[r] = this.slide(this.grid[r]);
+                }
+
+                if (flipped) this.grid = this.grid.map(row => row.reverse());
+                if (rotated) this.grid = this.transpose(this.grid);
+
+                if (oldGrid !== JSON.stringify(this.grid)) {
+                    this.addRandomTile();
+                    this.updateScore();
+                    this.drawTiles();
+                    this.checkStatus();
+                }
+            }
+
+            transpose(matrix) {
+                return matrix[0].map((col, i) => matrix.map(row => row[i]));
+            }
+
+            checkStatus() {
+                let movesAvailable = false;
+                 for (let r = 0; r < 4; r++) {
+                    for (let c = 0; c < 4; c++) {
+                        if(this.grid[r][c] === 0) movesAvailable = true;
+                        if(c < 3 && this.grid[r][c] === this.grid[r][c+1]) movesAvailable = true;
+                        if(r < 3 && this.grid[r][c] === this.grid[r+1][c]) movesAvailable = true;
+                    }
+                }
+
+                if (!movesAvailable) {
+                    this.msgText.innerText = "انتهت اللعبة!";
+                    this.msgContainer.style.display = 'flex';
+                }
+            }
+
+            updateScore() {
+                this.scoreDisplay.innerText = this.score;
+                if (this.score > this.bestScore) {
+                    this.bestScore = this.score;
+                    localStorage.setItem('bestScore', this.bestScore);
+                }
+                this.bestScoreDisplay.innerText = this.bestScore;
+            }
+
+            setupInput() {
+                document.addEventListener('keydown', (e) => {
+                    if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].includes(e.key)) {
+                        e.preventDefault();
+                        this.move(e.key);
+                    }
+                });
+
+                let touchStartX = 0;
+                let touchStartY = 0;
+                const gameArea = document.getElementById('gameArea');
+
+                gameArea.addEventListener('touchstart', (e) => {
+                    touchStartX = e.changedTouches[0].screenX;
+                    touchStartY = e.changedTouches[0].screenY;
+                }, {passive: false});
+
+                gameArea.addEventListener('touchend', (e) => {
+                    e.preventDefault();
+                    let touchEndX = e.changedTouches[0].screenX;
+                    let touchEndY = e.changedTouches[0].screenY;
+                    let dx = touchEndX - touchStartX;
+                    let dy = touchEndY - touchStartY;
+
+                    if(Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 30) {
+                        if(dx > 0) this.move('ArrowRight');
+                        else this.move('ArrowLeft');
+                    } else if(Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 30) {
+                        if(dy > 0) this.move('ArrowDown');
+                        else this.move('ArrowUp');
+                    }
+                }, {passive: false});
+            }
+        }
+        const game = new Game2048();
+    </script>
+</body>
+</html>
             <div class="store-item" onclick="simulatePurchase('undo_pack')">
                 <div><strong>50 تراجع إضافي</strong><br><small>صحح أخطاءك واستمر!</small></div>
                 <span class="price-tag">100 ج.م</span>
@@ -561,5 +466,6 @@
     </script>
 </body>
 </html>
+
 
 
