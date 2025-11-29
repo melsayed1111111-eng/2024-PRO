@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="description" content="العب لعبة 2048 الأصلية. لعبة ألغاز ذكية وسريعة.">
+    <meta name="description" content="العب لعبة 2048. حرك الأرقام واجمعها للوصول للفوز.">
     <title>لعبة 2048</title>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@700;800&display=swap" rel="stylesheet">
 
     <style>
         :root {
@@ -13,7 +13,6 @@
             --bg-game: #bbada0;
             --bg-cell: rgba(238, 228, 218, 0.35);
             --color-text: #776e65;
-            --gap-size: 10px; /* مسافة ثابتة بين الخلايا */
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -33,14 +32,14 @@
             display: flex; justify-content: space-between; align-items: center;
             padding: 15px 0;
         }
-        h1 { font-size: 40px; margin: 0; font-weight: 900; }
+        h1 { font-size: 40px; margin: 0; font-weight: 800; }
 
         .scores-box { display: flex; gap: 5px; }
         .score-card {
             background: #bbada0; padding: 5px 15px;
-            border-radius: 3px; text-align: center; color: white; min-width: 70px;
+            border-radius: 4px; text-align: center; color: white; min-width: 70px;
         }
-        .score-title { font-size: 10px; text-transform: uppercase; color: #eee4da; }
+        .score-title { font-size: 11px; text-transform: uppercase; color: #eee4da; }
         .score-val { font-size: 18px; font-weight: bold; }
 
         .controls {
@@ -50,20 +49,20 @@
         }
         .btn-restart {
             background: #8f7a66; color: white; border: none;
-            padding: 10px 20px; border-radius: 5px; font-weight: bold; cursor: pointer;
-            font-family: 'Tajawal', sans-serif;
+            padding: 10px 20px; border-radius: 4px; font-weight: bold; cursor: pointer;
+            font-family: 'Tajawal', sans-serif; font-size: 16px;
         }
 
-        /* --- حاوية اللعبة المعدلة للموبايل --- */
+        /* حاوية اللعبة */
         .game-wrapper {
             position: relative;
             background: var(--bg-game);
             border-radius: 6px;
-            /* الحيلة لضبط الحجم: العرض 90% من الشاشة بحد أقصى 500 بكسل */
-            width: min(90vw, 500px); 
-            height: min(90vw, 500px);
-            padding: var(--gap-size);
-            touch-action: none; /* منع السكرول أثناء اللعب */
+            width: 90vw; /* عرض نسبي للموبايل */
+            height: 90vw; /* نفس العرض ليكون مربعاً */
+            max-width: 500px; max-height: 500px; /* حد أقصى للكمبيوتر */
+            padding: 10px;
+            touch-action: none;
             margin: 0 auto;
         }
 
@@ -71,78 +70,80 @@
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             grid-template-rows: repeat(4, 1fr);
-            gap: var(--gap-size);
+            gap: 10px;
             width: 100%; height: 100%;
         }
 
         .grid-cell {
             background: var(--bg-cell);
-            border-radius: 3px;
+            border-radius: 4px;
             width: 100%; height: 100%;
         }
 
         .tile-container {
             position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-            padding: var(--gap-size); /* نفس حشوة الحاوية */
+            padding: 10px; /* يجب أن يطابق حشوة game-wrapper */
             pointer-events: none;
         }
 
         .tile {
             position: absolute;
             background: #eee4da;
-            border-radius: 3px;
+            border-radius: 4px;
             display: flex; justify-content: center; align-items: center;
-            font-weight: 900; 
+            font-weight: 800;
             z-index: 10;
-            transition: transform 0.1s ease-in-out; /* سرعة الحركة */
+            transition: all 0.1s ease-in-out; /* حركة ناعمة */
+            /* أهم سطر: هذا يضمن توسيط الرقم داخل المربع */
+            line-height: 0; 
         }
 
-        /* تنسيق الخط داخل المربع ليكون متجاوباً */
-        .tile-inner { width: 100%; text-align: center; line-height: 1; }
+        /* ألوان وأحجام الخطوط */
+        .tile-2 { background: #eee4da; color: #776e65; font-size: 35px; }
+        .tile-4 { background: #ede0c8; color: #776e65; font-size: 35px; }
+        .tile-8 { background: #f2b179; color: #f9f6f2; font-size: 32px; }
+        .tile-16 { background: #f59563; color: #f9f6f2; font-size: 30px; }
+        .tile-32 { background: #f67c5f; color: #f9f6f2; font-size: 28px; }
+        .tile-64 { background: #f65e3b; color: #f9f6f2; font-size: 26px; }
+        .tile-128, .tile-256, .tile-512 { background: #edcf72; color: #f9f6f2; font-size: 24px; box-shadow: 0 0 10px rgba(243, 215, 116, 0.4); }
+        .tile-1024, .tile-2048 { background: #edc22e; color: #f9f6f2; font-size: 20px; }
 
-        /* ألوان المربعات */
-        .tile-2 { background: #eee4da; color: #776e65; font-size: clamp(20px, 8vw, 45px); }
-        .tile-4 { background: #ede0c8; color: #776e65; font-size: clamp(20px, 8vw, 45px); }
-        .tile-8 { background: #f2b179; color: #f9f6f2; font-size: clamp(20px, 8vw, 40px); }
-        .tile-16 { background: #f59563; color: #f9f6f2; font-size: clamp(18px, 7vw, 35px); }
-        .tile-32 { background: #f67c5f; color: #f9f6f2; font-size: clamp(18px, 7vw, 35px); }
-        .tile-64 { background: #f65e3b; color: #f9f6f2; font-size: clamp(16px, 6vw, 30px); }
-        .tile-128 { background: #edcf72; color: #f9f6f2; font-size: clamp(14px, 5vw, 25px); }
-        .tile-256 { background: #edcc61; color: #f9f6f2; font-size: clamp(14px, 5vw, 25px); }
-        .tile-512 { background: #edc850; color: #f9f6f2; font-size: clamp(14px, 5vw, 25px); }
-        .tile-1024 { background: #edc53f; color: #f9f6f2; font-size: clamp(10px, 4vw, 20px); }
-        .tile-2048 { background: #edc22e; color: #f9f6f2; font-size: clamp(10px, 4vw, 20px); box-shadow: 0 0 10px rgba(243, 215, 116, 0.5); }
+        /* تصغير الخطوط للموبايل الصغير جداً */
+        @media screen and (max-width: 350px) {
+            .tile { font-size: 20px !important; }
+        }
 
         .game-message {
             position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(238, 228, 218, 0.8);
+            background: rgba(238, 228, 218, 0.85);
             display: none; flex-direction: column;
             justify-content: center; align-items: center;
             z-index: 20; border-radius: 6px;
         }
         .game-message p { font-size: 30px; font-weight: bold; margin-bottom: 20px; color: #776e65; }
 
+        /* الإعلانات */
         .ad-space {
             width: 100%; max-width: 350px;
-            min-height: 250px;
             background: #fff; margin: 20px 0;
             display: flex; align-items: center; justify-content: center;
-            border: 1px solid #eee;
+            min-height: 250px;
+            border: 1px dashed #ccc;
         }
 
+        /* المحتوى */
         .content-area {
             width: 90%; max-width: 600px;
-            text-align: right; margin-bottom: 50px;
-            background: #fff; padding: 20px; border-radius: 10px;
+            text-align: right; margin-bottom: 40px;
+            background: #fff; padding: 20px; border-radius: 8px;
         }
-        .content-area h2 { border-bottom: 2px solid #bbada0; color: #776e65; }
-        .content-area p, .content-area li { font-size: 16px; color: #666; line-height: 1.6; }
+        .content-area h2 { border-bottom: 2px solid #bbada0; color: #776e65; font-size: 20px; padding-bottom: 5px; }
+        .content-area p { font-size: 16px; color: #555; line-height: 1.6; }
 
         footer {
-            width: 100%; padding: 20px; background: #333; color: white; text-align: center;
-            font-size: 14px; margin-top: auto;
+            width: 100%; padding: 15px; background: #333; color: white; text-align: center;
+            font-size: 13px; margin-top: auto;
         }
-        footer a { color: #f2b179; margin: 0 10px; text-decoration: none; }
     </style>
 </head>
 <body>
@@ -172,11 +173,11 @@
         </div>
 
         <div class="grid-container">
-            <!-- 16 خلية للخلفية -->
-            <div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
-            <div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
-            <div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
-            <div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div><div class="grid-cell"></div>
+            <!-- هذه المربعات تحدد الأماكن، الجافاسكريبت سيستخدمها كمرجع -->
+            <div class="grid-cell" id="c-0-0"></div><div class="grid-cell" id="c-0-1"></div><div class="grid-cell" id="c-0-2"></div><div class="grid-cell" id="c-0-3"></div>
+            <div class="grid-cell" id="c-1-0"></div><div class="grid-cell" id="c-1-1"></div><div class="grid-cell" id="c-1-2"></div><div class="grid-cell" id="c-1-3"></div>
+            <div class="grid-cell" id="c-2-0"></div><div class="grid-cell" id="c-2-1"></div><div class="grid-cell" id="c-2-2"></div><div class="grid-cell" id="c-2-3"></div>
+            <div class="grid-cell" id="c-3-0"></div><div class="grid-cell" id="c-3-1"></div><div class="grid-cell" id="c-3-2"></div><div class="grid-cell" id="c-3-3"></div>
         </div>
 
         <div class="tile-container" id="tileContainer"></div>
@@ -194,19 +195,14 @@
     </div>
 
     <div class="content-area">
-        <h2>شرح اللعبة</h2>
-        <p>لعبة 2048 هي لغز رقمي يعتمد على دمج الأرقام المتشابهة. تم تصميم هذه النسخة لتكون خفيفة وسريعة وتعمل على جميع الهواتف.</p>
+        <h2>عن اللعبة</h2>
+        <p>قم بدمج الأرقام المتشابهة لتصل إلى الرقم 2048. هذه النسخة محسنة لتعمل بكفاءة على جميع الهواتف المحمولة.</p>
         <h2>طريقة اللعب</h2>
-        <ul>
-            <li>اسحب باصبعك لليمين، اليسار، الأعلى أو الأسفل.</li>
-            <li>عندما يتقابل رقمان متماثلان يندمجان في رقم واحد أكبر.</li>
-            <li>حاول الوصول للرقم 2048 قبل امتلاء اللوحة.</li>
-        </ul>
+        <p>حرك المربعات في أي اتجاه (فوق، تحت، يمين، يسار). عندما يصطدم مربعان بنفس الرقم، سيندمجان ويشكلان رقماً أكبر.</p>
     </div>
 
     <footer>
         <p>&copy; 2025 جميع الحقوق محفوظة.</p>
-        <p><a href="#">الخصوصية</a> | <a href="#">اتصل بنا</a></p>
     </footer>
 
     <script>
@@ -220,16 +216,16 @@
                 this.bestScoreDisplay = document.getElementById('bestScore');
                 this.msgContainer = document.getElementById('gameMessage');
                 
-                // متغيرات الحجم
-                this.gameWrapper = document.getElementById('gameArea');
-                this.gap = 10; 
-                
                 this.init();
                 this.setupInput();
                 
-                // إعادة رسم عند تدوير الشاشة
+                // إعادة الضبط عند تغيير حجم الشاشة أو تدوير الهاتف
+                let resizeTimer;
                 window.addEventListener('resize', () => {
-                    this.drawTiles();
+                    clearTimeout(resizeTimer);
+                    resizeTimer = setTimeout(() => {
+                        this.drawTiles();
+                    }, 100);
                 });
             }
 
@@ -248,13 +244,7 @@
                 this.init();
             }
 
-            // حساب حجم الخلية بدقة بناءً على عرض الشاشة الحالي
-            getTileSize() {
-                const containerWidth = this.gameWrapper.clientWidth;
-                // المعادلة: (عرض الحاوية - مجموع الفراغات 50 بكسل) / 4 خلايا
-                return (containerWidth - (this.gap * 5)) / 4;
-            }
-
+            // إضافة رقم عشوائي
             addRandomTile() {
                 let emptyCells = [];
                 for (let r = 0; r < 4; r++) {
@@ -272,9 +262,9 @@
                 this.tileContainer.innerHTML = '';
             }
 
+            // الرسم باستخدام مواقع الخلايا الحقيقية (الحل الجذري)
             drawTiles() {
                 this.clearTiles();
-                const tileSize = this.getTileSize();
 
                 for (let r = 0; r < 4; r++) {
                     for (let c = 0; c < 4; c++) {
@@ -283,14 +273,17 @@
                             tile.classList.add('tile', `tile-${this.grid[r][c]}`);
                             tile.innerText = this.grid[r][c];
                             
-                            // حساب الموقع بدقة
-                            let left = this.gap + c * (tileSize + this.gap);
-                            let top = this.gap + r * (tileSize + this.gap);
-
-                            tile.style.width = `${tileSize}px`;
-                            tile.style.height = `${tileSize}px`;
-                            tile.style.transform = `translate(${left}px, ${top}px)`;
+                            // 1. العثور على الخلية الخلفية المطابقة لهذا الموقع
+                            let bgCell = document.getElementById(`c-${r}-${c}`);
                             
+                            // 2. نسخ موقعها وحجمها بالضبط
+                            if (bgCell) {
+                                tile.style.width = bgCell.offsetWidth + 'px';
+                                tile.style.height = bgCell.offsetHeight + 'px';
+                                tile.style.left = bgCell.offsetLeft + 'px';
+                                tile.style.top = bgCell.offsetTop + 'px';
+                            }
+
                             this.tileContainer.appendChild(tile);
                         }
                     }
@@ -320,8 +313,7 @@
                 let flipped = false;
                 let rotated = false;
 
-                if (direction === 'ArrowLeft') { } 
-                else if (direction === 'ArrowRight') {
+                if (direction === 'ArrowRight') {
                     this.grid = this.grid.map(row => row.reverse());
                     flipped = true;
                 } else if (direction === 'ArrowUp') {
@@ -380,6 +372,7 @@
             }
 
             setupInput() {
+                // الكيبورد
                 document.addEventListener('keydown', (e) => {
                     if(["ArrowUp","ArrowDown","ArrowLeft","ArrowRight"].includes(e.key)) {
                         e.preventDefault();
@@ -387,16 +380,17 @@
                     }
                 });
 
+                // اللمس (الموبايل)
                 let touchStartX = 0;
                 let touchStartY = 0;
-                
-                // إضافة Touch Events للحاوية فقط لمنع التداخل
-                this.gameWrapper.addEventListener('touchstart', (e) => {
+                const gameArea = document.getElementById('gameArea');
+
+                gameArea.addEventListener('touchstart', (e) => {
                     touchStartX = e.changedTouches[0].screenX;
                     touchStartY = e.changedTouches[0].screenY;
                 }, {passive: false});
 
-                this.gameWrapper.addEventListener('touchend', (e) => {
+                gameArea.addEventListener('touchend', (e) => {
                     e.preventDefault();
                     let touchEndX = e.changedTouches[0].screenX;
                     let touchEndY = e.changedTouches[0].screenY;
